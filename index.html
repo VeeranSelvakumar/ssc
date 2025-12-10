@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Veeran Tech Point</title>
+
+<style>
+body { 
+  font-family: Arial; 
+  background-color: #f9fafb; 
+  background-image: 
+    linear-gradient(to right, #e5e7eb 1px, transparent 1px),
+    linear-gradient(to bottom, #e5e7eb 1px, transparent 1px);
+  background-size: 20px 20px;
+  padding:20px; 
+}
+
+#welcomePage, #formPage {
+  max-width:600px; 
+  margin:auto; 
+  text-align:center;
+}
+
+#formPage { display:none; }
+
+/* FORM INPUT DESIGN */
+input, textarea, select {
+  width:100%; padding:12px; margin:8px 0;
+  border:1px solid #ccc; border-radius:6px; font-size:16px;
+  text-align:left;
+}
+
+/* LEFT ALIGN FORM */
+#formPage form { text-align:left; }
+
+#formPage label {
+  display:block;
+  margin-bottom:4px;
+  font-weight:bold;
+}
+
+/* RED ERROR BLINK */
+.errorField {
+  border:2px solid red !important;
+  animation: blink 0.4s ease-in-out 3;
+}
+
+@keyframes blink {
+  0% { border-color: red; }
+  50% { border-color: transparent; }
+  100% { border-color: red; }
+}
+
+button {
+  background:#1a73e8; color:white; padding:12px;
+  width:100%; border:0; border-radius:6px;
+  font-size:18px; cursor:pointer;
+}
+
+/* LOADING POPUP */
+#loading {
+  display:none; position:fixed;
+  top:0; left:0; width:100%; height:100%;
+  background: rgba(0,0,0,0.4);
+  z-index:9999; 
+  backdrop-filter:blur(2px);
+  justify-content:center; align-items:center;
+  flex-direction:column;
+}
+
+.loading-box {
+  background:white; padding:25px 40px;
+  border-radius:12px; text-align:center;
+  box-shadow:0 0 15px #00000055;
+}
+
+.loader {
+  border:6px solid #ddd; border-top:6px solid #1a73e8;
+  border-radius:50%; width:45px; height:45px;
+  animation: spin 1s linear infinite; margin:auto;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* SUCCESS POPUP */
+#successPopup {
+  display:none;
+  position:fixed;
+  top:0; left:0; width:100%; height:100%;
+  background:rgba(0,0,0,0.5);
+  z-index:99999;
+  justify-content:center;
+  align-items:center;
+}
+
+#successPopup .popup-content {
+  background:white;
+  padding:30px;
+  width:300px;
+  border-radius:12px;
+  text-align:center;
+  box-shadow:0 0 15px rgba(0,0,0,0.4);
+}
+
+#successPopup .popup-content button {
+  background:#1a73e8;
+  color:white;
+  border:0;
+  padding:10px 20px;
+  border-radius:8px;
+  cursor:pointer;
+  margin-top:10px;
+}
+</style>
+</head>
+
+<body>
+
+<!-- PAGE 1 -->
+<div id="welcomePage">
+  <h1>Welcome to Veeran Tech Point</h1>
+  <p>Digital Services Made Easy!</p>
+  <button onclick="showForm()">Apply for SSC GD Examination</button>
+</div>
+
+<!-- PAGE 2 -->
+<div id="formPage">
+  <h1>SSC GD</h1>
+
+  <form id="rationForm">
+
+    <label>Full Name</label>
+    <input type="text" id="name" required>
+
+    <label>Mobile Number (10 digits)</label>
+    <input type="number" id="mobile" required
+           oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,10);">
+
+    <label>E-Mail ID</label>
+    <input type="email" id="mail" required>
+
+    <label>Father Name</label>
+    <input type="text" id="father" required>
+
+    <label>Mother Name</label>
+    <input type="text" id="mother" required>
+
+    <label>Did you complete 10th during Corona?</label>
+    <select id="corona" required>
+      <option value="">-- Select --</option>
+      <option>No</option>
+      <option>Yes</option>
+    </select>
+
+    <label>Already applied in SSC?</label>
+    <select id="applied" required>
+      <option value="">-- Select --</option>
+      <option>No</option>
+      <option>Yes</option>
+    </select>
+
+    <label>Highest Qualification</label>
+    <select id="qualification" required>
+      <option value="">-- Select --</option>
+      <option>10th</option>
+      <option>12th</option>
+      <option>Diploma</option>
+      <option>Graduation</option>
+      <option>Post Graduation</option>
+    </select>
+
+    <label>Upload Aadhaar - Front</label>
+    <input type="file" id="aadhaarfront" accept="image/*,application/pdf" required>
+
+    <label>Upload Aadhaar - Back</label>
+    <input type="file" id="aadhaarback" accept="image/*,application/pdf" required>
+
+    <label>Upload 10th Marksheet</label>
+    <input type="file" id="tenth" accept="image/*,application/pdf" required>
+
+    <label>Upload Signature</label>
+    <input type="file" id="signature" accept="image/*,application/pdf" required>
+
+    <button type="submit">Submit Application</button>
+  </form>
+</div>
+
+<!-- LOADING POPUP -->
+<div id="loading">
+  <div class="loading-box">
+    <div class="loader"></div>
+    <h3>Please wait...</h3>
+    <p>Your request is being submitted</p>
+  </div>
+</div>
+
+<!-- SUCCESS POPUP -->
+<div id="successPopup">
+  <div class="popup-content">
+    <h2 style="color:green;">✔ Success!</h2>
+    <p>Your Request Submitted Successfully</p>
+    <button onclick="closePopup()">OK</button>
+  </div>
+</div>
+
+<script>
+
+function showForm(){
+  document.getElementById("welcomePage").style.display="none";
+  document.getElementById("formPage").style.display="block";
+}
+
+function closePopup(){
+  document.getElementById("successPopup").style.display="none";
+}
+
+document.getElementById("rationForm").addEventListener("submit", async function(e){
+  e.preventDefault();
+
+  // GET ELEMENTS
+  let name = document.getElementById("name");
+  let mobile = document.getElementById("mobile");
+  let mail = document.getElementById("mail");
+  let father = document.getElementById("father");
+  let mother = document.getElementById("mother");
+  let corona = document.getElementById("corona");
+  let applied = document.getElementById("applied");
+  let qualification = document.getElementById("qualification");
+
+  let aadhaarfront = document.getElementById("aadhaarfront");
+  let aadhaarback = document.getElementById("aadhaarback");
+  let tenth = document.getElementById("tenth");
+  let signature = document.getElementById("signature");
+
+  let fields = [
+    name, mobile, mail, father, mother,
+    corona, applied, qualification,
+    aadhaarfront, aadhaarback, tenth, signature
+  ];
+
+  fields.forEach(f => f.classList.remove("errorField"));
+
+  let isValid = true;
+
+  fields.forEach(f=>{
+    if(f.type === "file"){
+      if(f.files.length===0){ f.classList.add("errorField"); isValid=false; }
+    }
+    else if(f.value.trim()===""){
+      f.classList.add("errorField");
+      isValid=false;
+    }
+  });
+
+  if(mobile.value.length !== 10){
+    mobile.classList.add("errorField");
+    isValid=false;
+  }
+
+  if(!isValid) return;
+
+  document.getElementById("loading").style.display="flex";
+
+  async function toBase64(file){
+    return new Promise(res=>{
+      let r = new FileReader();
+      r.onload = ()=>res(r.result);
+      r.readAsDataURL(file);
+    });
+  }
+
+  let formData = new FormData();
+  formData.append("name", name.value);
+  formData.append("mobile", mobile.value);
+  formData.append("mail", mail.value);
+  formData.append("father", father.value);
+  formData.append("mother", mother.value);
+  formData.append("corona", corona.value);
+  formData.append("applied", applied.value);
+  formData.append("qualification", qualification.value);
+
+  formData.append("aadhaarFrontBase64", await toBase64(aadhaarfront.files[0]));
+  formData.append("aadhaarBackBase64", await toBase64(aadhaarback.files[0]));
+  formData.append("tenthBase64", await toBase64(tenth.files[0]));
+  formData.append("signatureBase64", await toBase64(signature.files[0]));
+
+  fetch("https://script.google.com/macros/s/AKfycbxyxf3kkVXDKr0WKXkOtF9GeAnUmxn2qn_CmygS_8dYmjKsTfIbvxFeMh6iFGIR9LsC/exec", {
+    method:"POST",
+    body:formData
+  })
+  .then(r=>r.json())
+  .then(()=>{
+    loading.style.display="none";
+    successPopup.style.display="flex";
+    rationForm.reset();
+  })
+  .catch(()=>{
+    loading.style.display="none";
+    alert("Submission Failed!");
+  });
+
+});
+</script>
+
+</body>
+</html>
